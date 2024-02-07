@@ -2,6 +2,7 @@ package com.example.springdatajdbc.controller;
 
 import com.example.springdatajdbc.models.Employee;
 import com.example.springdatajdbc.repository.EmployeeRepo;
+import com.example.springdatajdbc.service.EmployeeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,42 +11,42 @@ import java.util.List;
 @RestController
 @RequestMapping("employee")
 public class HomeController {
-    private final EmployeeRepo employeeRepo;
-    public HomeController(EmployeeRepo employeeRepo){
-        this.employeeRepo = employeeRepo;
+    private final EmployeeService employeeService;
+    public HomeController(EmployeeRepo employeeRepo, EmployeeService employeeService){
+        this.employeeService = employeeService;
+
     }
     @GetMapping("/count")
     public long countEmp(){
-        return employeeRepo.count();
+        return employeeService.countEmployees();
     }
     @GetMapping("/{id}")
     public Employee findEmployee(@PathVariable("id") long id){
-        return employeeRepo.findById(id).get();
+        return employeeService.findEmployeeById(id);
     }
     @GetMapping("")
     public Iterable<Employee> findEmployees(){
-        return employeeRepo.findAll();
+        return employeeService.findAllEmployees();
     }
     @PostMapping("")
-    public Employee saveEmployee(@RequestBody Employee employee){
-        return employeeRepo.save(employee);
+    public int saveEmployee(@RequestBody Employee employee){
+        return employeeService.insertNewEmployee(employee);
     }
     @PutMapping("")
     public Employee updateEmployee(@RequestBody Employee employee){
-        return employeeRepo.save(employee);
+        return employeeService.updateEmployee(employee);
     }
     @GetMapping("/contains/{letters}")
     public List<Employee> findEmpNamesLike(@PathVariable("letters") String letters){
-        letters = new String("%"+letters+"%");
-        return employeeRepo.findByNameLike(letters);
-    }
-    @GetMapping("/startWith/{name}/{id}")
-    public List<Employee>findEmployeesLikeNameAndId(@PathVariable("name") String name, @PathVariable("id") long id){
-        return employeeRepo.findByNameStartsWithAndIdGreaterThanEqual(name, id);
+        return employeeService.findEmployeesByNameContains(letters);
     }
     @DeleteMapping("/{id}")
     public void deleteEmp(@PathVariable("id") long id){
-        employeeRepo.deleteById(id);
+        employeeService.deleteEmployeeById(id);
+    }
+    @PutMapping("/salary")
+    public int updateSalaryOfEmployee(@RequestParam long id, @RequestParam String salary){
+        return employeeService.updateEmployeeSalary(id, salary);
     }
 
 }
